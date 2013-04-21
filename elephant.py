@@ -35,7 +35,7 @@ class ZipBackup(object):
         key = Key(bucket)
         key.key = '%s_%s.zip' % 
             (self.name, datetime.now().strftime("%Y%m%d%H%M%S"))
-        key.set_contents_from_filename(zipfile_path)
+        key.set_contents_from_filename(self._path)
         
     def _get_filename_for_archive(self, directory, filename, preserve_paths, name):
         if not preserve_paths:
