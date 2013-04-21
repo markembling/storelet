@@ -87,6 +87,11 @@ Right now, the only backup process is uploading to Amazon S3:
 
 In the future, it is my intention to add more methods of preserving the backups. Right now, this fulfils my requirements.
 
+Backup Types
+------------
+
+Right now, the only type of backup is a zip file, using ``ZipBackup``. In the future, I may add others such as tar files and so on. If you really don't want a zip file, elephant may not be right for you at the moment.
+
 Warning
 -------
 
