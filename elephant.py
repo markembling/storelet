@@ -50,17 +50,17 @@ class ZipBackup(object):
 class TemporaryBackupDirectory(object):
     def __init__(self, name, parent):
         self.name = name
-        self._dir = mkdtemp()
+        self.path = mkdtemp()
         self._parent = parent
     
     def __str__():
-        return self._dir
+        return self.path
     
     def __enter__(self):
         return self
         
     def __exit__(self):
-        parent.include_directory(self._dir, preserve_paths=False, 
+        parent.include_directory(self.path, preserve_paths=False, 
                                  name=self.name)
-        shutil.rmtree(self._dir)
+        shutil.rmtree(self.path)
 
