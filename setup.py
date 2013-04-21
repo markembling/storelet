@@ -19,6 +19,6 @@ setup(name="elephant_backup",
           "Development Status :: 3 - Alpha",
           "Intended Audience :: Developers",
           "Intended Audience :: System Administrators",
-          "Licence :: OSI Approved :: BSD Licence",
+          "License :: OSI Approved :: BSD License",
           "Topic :: System :: Archiving :: Backup"
       ])
