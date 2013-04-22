@@ -5,15 +5,15 @@ def read_file(filename):
     with open(os.path.join(os.path.dirname(__file__), filename)) as file:
         return file.read()
 
-setup(name="elephant_backup",
-      version="0.1",
+setup(name="storelet",
+      version="0.1.1",
       description="Simple and easy framework for writing backup scripts",
       long_description=read_file("README.rst"),
       author="Mark Embling",
       author_email="contact@markembling.info",
-      url="http://github.com/markembling/elephant",
+      url="http://github.com/markembling/storelet",
       license="BSD",
-      py_modules=["elephant_backup"],
+      py_modules=["storelet"],
       install_requires=["boto"],
       classifiers=[
           "Development Status :: 3 - Alpha",

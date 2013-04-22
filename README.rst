@@ -1,8 +1,8 @@
-===============
-Elephant Backup
-===============
+========
+Storelet
+========
 
-Elephant is a simple and easy to use framework for writing backup scripts in Python.
+Storelet is a simple and easy to use framework for writing backup scripts in Python.
 
 It currently supports the following:
 
@@ -18,19 +18,19 @@ Install
 
 ::
 
-    $ pip install elephant_backup
+    $ pip install storelet
     
 
 Getting Started
 ---------------
 
-Your backup scripts will be simple Python files. Simply import ``elephant_backup`` and use as follows:
+Your backup scripts will be simple Python files. Simply import ``storelet`` and use as follows:
 
 ::
 
-    import elephant_backup
+    import storelet
 
-    with elephant_backup.ZipBackup("example") as backup:
+    with storelet.ZipBackup("example") as backup:
         backup.include_directory("/home/mark/some/directory")
         backup.include_directory("/some/other/directory")
         
@@ -55,19 +55,19 @@ Put all the files/directories inside a new directory in the zip file:
 
     backup.include_directory("/home/mark/some/directory", name="my_special_directory")
 
-Both arguments can be provided, in which case the entire heirarchy would be kept but nested inside the newly created directory.
+Both arguments can be provided, in which case the entire heirarchy would be kept but nested inside the newly created directory. In addition, it is fine to use the same value for the ``name`` argument more than once. This will result in both directories' contents existing within a directory by that name.
 
 Creating new directories
 ------------------------
 
-Sometimes it's desirable to run additional commands (such as database backups for example) as part of a backup, and place these in a newly created directory. Elephant allows this using the following method:
+Sometimes it's desirable to run additional commands (such as database backups for example) as part of a backup, and place these in a newly created directory. Storelet allows this using the following method:
 
 ::
 
     from subprocess import call
-    import elephant_backup
+    import storelet
     
-    with elephant_backup.ZipBackup("example") as backup:
+    with storelet.ZipBackup("example") as backup:
         with backup.include_new_dir("generated_directory") as d:
             call(["touch", "%s/touched.file" % d])
             # any commands or python code can generate files here
@@ -90,7 +90,7 @@ In the future, it is my intention to add more methods of preserving the backups.
 Backup Types
 ------------
 
-Right now, the only type of backup is a zip file, using ``ZipBackup``. In the future, I may add others such as tar files and so on. If you really don't want a zip file, elephant may not be right for you at the moment.
+Right now, the only type of backup is a zip file, using ``ZipBackup``. In the future, I may add others such as tar files and so on. If you really don't want a zip file, storelet may not be right for you at the moment.
 
 Warning
 -------
