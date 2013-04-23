@@ -1,7 +1,7 @@
 import os
 from tempfile import mkstemp, mkdtemp
 from shutil import rmtree
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 from datetime import datetime
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -22,7 +22,7 @@ class ZipBackup(object):
     
     def include_directory(self, path, preserve_paths=False, name=None):
         path = os.path.abspath(path)
-        with ZipFile(self._path, 'a') as zipfile:
+        with ZipFile(self._path, 'a', ZIP_DEFLATED) as zipfile:
             for base,dirs,files in os.walk(path):
                 for file in files:
                     filename = os.path.join(base, file)
