@@ -13,6 +13,11 @@ It currently supports the following:
 
 Right now, that's all it does as it's all I've needed. I expect to add more as time goes on, but if something is missing or feels wrong, feel free to submit a pull request.
 
+Requirements
+------------
+
+Right now, storelet has only been tested on Python 2.7, and probably will not work on older versions. It also assumes the presence of the `zlib` library.
+
 Install
 -------
 
