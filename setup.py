@@ -6,7 +6,7 @@ def read_file(filename):
         return file.read()
 
 setup(name="storelet",
-      version="0.1.1",
+      version="0.1.2",
       description="Simple and easy framework for writing backup scripts",
       long_description=read_file("README.rst"),
       author="Mark Embling",
