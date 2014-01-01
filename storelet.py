@@ -6,6 +6,9 @@ from datetime import datetime
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
+__version__ = "0.1.3"
+__author__ = "Mark Embling"
+
 class ZipBackup(object):
     def __init__(self, name):
         self.name = name
@@ -26,10 +29,12 @@ class ZipBackup(object):
             for base,dirs,files in os.walk(path):
                 for file in files:
                     filename = os.path.join(base, file)
-                    zipfile.write(filename, 
-                                  self._get_filename_for_archive(path, filename, 
-                                                                 preserve_paths, 
-                                                                 name))
+                    try:
+                        zipfile.write(filename,
+                            self._get_filename_for_archive(
+                                path, filename, preserve_paths, name))
+                    except IOError:
+                        pass
     
     def save_to_s3(self, bucket, access_key, secret_key):
         conn = S3Connection(access_key, secret_key)
