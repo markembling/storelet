@@ -10,6 +10,9 @@ __version__ = "0.1.3"
 __author__ = "Mark Embling"
 
 class ZipBackup(object):
+
+    """A compressed ZIP file backup"""
+
     def __init__(self, name):
         self.name = name
         _, self._path = mkstemp()
@@ -24,6 +27,7 @@ class ZipBackup(object):
         os.remove(self._path)
     
     def include_directory(self, path, preserve_paths=False, name=None):
+        """Add the contents of a directory to the backup"""
         path = os.path.abspath(path)
         with ZipFile(self._path, 'a', ZIP_DEFLATED) as zipfile:
             for base,dirs,files in os.walk(path):
@@ -37,12 +41,17 @@ class ZipBackup(object):
                         pass
     
     def save_to_s3(self, bucket, access_key, secret_key):
+        """Save the backup to Amazon S3"""
         conn = S3Connection(access_key, secret_key)
         bucket = conn.get_bucket(bucket)
         key = Key(bucket)
         key.key = '%s_%s.zip' % \
             (self.name, datetime.now().strftime("%Y%m%d%H%M%S"))
         key.set_contents_from_filename(self._path)
+
+    def include_new_dir(self, name):
+        """Add a new empty directory to the backup"""
+        return BackupIncludedDirectory(name, self)
         
     def _get_filename_for_archive(self, directory, filename, preserve_paths, name):
         if not preserve_paths:
@@ -50,11 +59,11 @@ class ZipBackup(object):
         if name is not None:
             filename = name + os.sep + filename
         return filename
-    
-    def include_new_dir(self, name):
-        return TemporaryBackupDirectory(name, self)
         
-class TemporaryBackupDirectory(object):
+class BackupIncludedDirectory(object):
+
+    """A new directory which is subsequently added to the backup"""
+
     def __init__(self, name, parent):
         self.name = name
         self.path = mkdtemp()
@@ -68,6 +77,5 @@ class TemporaryBackupDirectory(object):
         
     def __exit__(self, type, value, traceback):
         self._parent.include_directory(self.path, preserve_paths=False, 
-                                       name=self.name)
+                                                  name=self.name)
         rmtree(self.path)
-
