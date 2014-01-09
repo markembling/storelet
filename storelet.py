@@ -53,7 +53,8 @@ class ZipBackup(object):
         """Add a new empty directory to the backup"""
         return BackupIncludedDirectory(name, self)
         
-    def _get_filename_for_archive(self, directory, filename, preserve_paths, name):
+    def _get_filename_for_archive(self, directory, filename, 
+                                  preserve_paths, name):
         if not preserve_paths:
             filename = filename.replace(directory, "")
         if name is not None:
