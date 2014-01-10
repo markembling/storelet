@@ -61,6 +61,34 @@ class TestZipBackup(StoreletTestCase):
             self.assertIn("file.txt", names)
             self.assertIn("dir1/file.txt", names)
 
+    def test_include_directory_preserving_paths(self):
+        """
+        Ensure full paths are preserved if the preserve_paths option is
+        True
+        """
+        self.assertFalse(True, "TODO")
+
+    def test_include_directory_with_name(self):
+        """
+        Ensure directory contents are added to a named directory if a 
+        name is given
+        """
+        self.assertFalse(True, "TODO")
+
+    def test_include_directory_with_name_and_paths(self):
+        """
+        Ensure a named directory is created with the full path preserved
+        underneath it within the backup if both options are given
+        """
+        self.assertFalse(True, "TODO")
+
+    def test_include_directory_merges_same_names(self):
+        """
+        Ensure that if two directories are included using the same name,
+        both sets of files are included within the appropriate directory
+        """
+        self.assertFalse(True, "TODO")
+
     def test_resulting_file_is_zipfile(self):
         """
         Make sure the file is in fact a ZIP after adding some contents
@@ -88,6 +116,10 @@ class TestZipBackup(StoreletTestCase):
             # If the name has the directory in it, the directory exists 
             # as far as the zip file and any archive tool is concerned.
             self.assertIn("new_dir/test.txt", names)
+
+class TestBackupIncludedDirectory(StoreletTestCase):
+    # TODO
+    pass
 
 
 if __name__ == '__main__':
