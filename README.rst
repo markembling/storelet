@@ -16,7 +16,7 @@ Right now, that's all it does as it's all I've needed. I expect to add more as t
 Requirements
 ------------
 
-Right now, storelet has only been tested on Python 2.7, and probably will not work on older versions. It also assumes the presence of the `zlib` library.
+Right now, storelet has only been tested on Python 2.7 and will not work on older versions. Python 3.x support is to be added. It also assumes the presence of the `zlib` library.
 
 Install
 -------
