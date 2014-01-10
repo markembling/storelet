@@ -33,11 +33,6 @@ class TestZipBackup(StoreletTestCase):
         b.close()
         self.assertFalse(os.path.exists(b._path))
 
-    def test_temporary_file_is_zipfile(self):
-        """Make sure the file is in fact a ZIP"""
-        with storelet.ZipBackup("test") as b:
-            zipfile.is_zipfile(b._path)
-
     def test_sets_backup_name(self):
         with storelet.ZipBackup("test") as b:
             self.assertEqual(b.name, "test")
@@ -65,6 +60,34 @@ class TestZipBackup(StoreletTestCase):
             names = zip_file.namelist()
             self.assertIn("file.txt", names)
             self.assertIn("dir1/file.txt", names)
+
+    def test_resulting_file_is_zipfile(self):
+        """
+        Make sure the file is in fact a ZIP after adding some contents
+        """
+        with storelet.ZipBackup("test") as b:
+            b.include_directory(self.get_data("simple"))
+            zipfile.is_zipfile(b._path)
+
+    def test_include_new_dir(self):
+        """
+        Check that we can create a new custom directory in the backup
+        """
+        with storelet.ZipBackup("test") as b:
+            with b.include_new_dir("new_dir") as d:
+                # We need to write at least one file to the directory
+                # as empty directories don't exist in zip files. The 
+                # file heirarchy is just implied by the names of the 
+                # members of the zip file.
+                with open(os.path.join(str(d), "test.txt"), "w") as f:
+                    f.write("Testing")
+
+            zip_file = zipfile.ZipFile(b._path, "r")
+            names = zip_file.namelist()
+
+            # If the name has the directory in it, the directory exists 
+            # as far as the zip file and any archive tool is concerned.
+            self.assertIn("new_dir/test.txt", names)
 
 
 if __name__ == '__main__':
