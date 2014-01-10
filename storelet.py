@@ -72,10 +72,10 @@ class BackupIncludedDirectory(object):
 
     """A new directory which is subsequently added to the backup"""
 
-    def __init__(self, name, parent):
+    def __init__(self, name, owner):
         self.name = name
         self.path = mkdtemp()
-        self._parent = parent
+        self._owner = owner
     
     def __str__(self):
         return self.path
@@ -84,6 +84,6 @@ class BackupIncludedDirectory(object):
         return self
         
     def __exit__(self, type, value, traceback):
-        self._parent.include_directory(self.path, preserve_paths=False, 
-                                                  name=self.name)
+        self._owner.include_directory(self.path, preserve_paths=False, 
+                                                 name=self.name)
         rmtree(self.path)
