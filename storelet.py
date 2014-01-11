@@ -13,10 +13,15 @@ __author__ = "Mark Embling"
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-def setup_logging():
+LOGGING_DEFAULT_LEVEL = logging.INFO
+LOGGING_DEFAULT_FORMAT = "%(asctime)s [%(levelname)s]: %(message)s"
+
+def setup_logging(**kwargs):
     """Convenience function for setting up some sane logging defaults"""
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s [%(levelname)s]: %(message)s")
+    defaults = {"level": LOGGING_DEFAULT_LEVEL, 
+                "format": LOGGING_DEFAULT_FORMAT}
+    opts = dict(defaults.items() + kwargs.items())
+    logging.basicConfig(**opts)
 
 class ZipBackup(object):
 
