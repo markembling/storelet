@@ -125,6 +125,8 @@ This will set up the logger to show all messages from INFO level upwards, and fo
 
 Of course, using this method is entirely optional. You may wish to set up logging a different way using any of the standard `Python logging`_ tools.
 
+::
+
     import storelet
     import logging
 
