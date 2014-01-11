@@ -8,6 +8,14 @@ from moto import mock_s3
 import storelet
 
 class StoreletTestCase(unittest.TestCase):
+
+    """
+    Base test class for storelet tests
+
+    Wires up a few bits we'll need: logging tests and method to find 
+    test data directories.
+    """
+
     def get_data(self, name):
         """Gets the path to the named test data"""
         return os.path.join(
@@ -36,9 +44,9 @@ class StoreletTestCase(unittest.TestCase):
         raise AssertionError(
             "No %s log message containing '%s'" % (level, message))
 
-class FakeBackup(object):
+class MockBackup(object):
 
-    """Fake backup object for checking methods were called"""
+    """Mock backup object for checking methods were called"""
 
     def __init__(self):
         self.include_directory_called = False
@@ -261,7 +269,7 @@ class TestBackupIncludedDirectory(StoreletTestCase):
 
     def setUp(self):
         super(TestBackupIncludedDirectory, self).setUp()
-        self.fake_backup = FakeBackup()
+        self.fake_backup = MockBackup()
 
     def test_sets_name(self):
         """Name is correctly set"""
