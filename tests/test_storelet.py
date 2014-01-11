@@ -2,6 +2,7 @@ import os
 import unittest
 import zipfile
 import logging
+from datetime import datetime
 import boto
 from moto import mock_s3
 import storelet
@@ -208,6 +209,22 @@ class TestZipBackup(StoreletTestCase):
             # as far as the zip file and any archive tool is concerned.
             self.assertIn("new_dir/test.txt", names)
 
+    @mock_s3
+    def test_save_to_s3(self):
+        """Saving to S3 should put result into chosen S3 bucket"""
+
+        # Set up mock S3 - make sure the bucket exists
+        conn = boto.connect_s3()
+        conn.create_bucket("mybucket")
+
+        with storelet.ZipBackup("test") as b:
+            b.save_to_s3("mybucket", "myaccesskey", "mysecret")
+
+        # There should be one result and it should be the one we expect
+        for k in conn.get_bucket("mybucket").list():
+            expected_name = 'test_%s.zip' % datetime.now().strftime("%Y%m%d%H%M%S")
+            self.assertEqual(k.name, expected_name)
+
     def test_logging_when_creating_and_removing_file(self):
         """Log messages when creating and removing temporary file"""
         with storelet.ZipBackup("test") as b:
@@ -227,6 +244,7 @@ class TestZipBackup(StoreletTestCase):
     @mock_s3
     def test_logging_when_saving_to_s3(self):
         """Log messages when saving the backup to Amazon S3"""
+
         # Set up mock S3 - make sure the bucket exists
         conn = boto.connect_s3()
         conn.create_bucket("mybucket")
