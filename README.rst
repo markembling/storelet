@@ -110,7 +110,7 @@ Storelet uses the standard `Python logging`_ mechanism, and also offers a conven
 
     # Backup stuff here
 
-This will set up the logger to show all messages from INFO level upwards, and formats the output (send to the standard out) to look like the following:
+This will set up the logger to show all messages from INFO level upwards, and formats the output (which is sent to the standard output) to look like the following:
 
 ::
 
@@ -123,6 +123,16 @@ This will set up the logger to show all messages from INFO level upwards, and fo
     2014-01-11 14:12:11,503 [INFO]: Added file /path/to/subdirectory/file2
     ...
 
+Any keyword arguments given to this method will be passed on to the logging configuration. Where you provide one which clashes with the default (e.g. if you provide a ``format`` argument), yours will take precedence.
+
+::
+
+    # Use your own format instead of the default
+    storelet.setup_logging(format="At %(asctime)s, this happened: %(message)s")
+
+    # Log to a file instead of the standard output
+    storelet.setup_logging(filename="mybackups.log")
+
 Of course, using this method is entirely optional. You may wish to set up logging a different way using any of the standard `Python logging`_ tools.
 
 ::
@@ -130,9 +140,26 @@ Of course, using this method is entirely optional. You may wish to set up loggin
     import storelet
     import logging
 
-    logging.basicConfig(level=logging.INFO, format="At %(asctime)s, this happened: %(message)s")
+    logging.basicConfig(level=logging.INFO, 
+                        format="At %(asctime)s, this happened: %(message)s")
 
     # Backup stuff here
+
+Most of the normal status messages which are logged are done so at ``INFO`` level. You may wish to get verbose log output by specifying ``DEBUG`` level.
+
+::
+
+    import storelet
+    import logging
+
+    storelet.setup_logging(level=logging.DEBUG)
+
+You can also get access to the defaults used in storelet's ``setup_logging`` method:
+
+::
+
+    storelet.LOGGING_DEFAULTS
+    # returns a dict: {'format': '%(asctime)s [%(levelname)s]: %(message)s', 'level': logging.INFO}
 
 Warning
 -------
