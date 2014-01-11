@@ -97,8 +97,46 @@ Backup Types
 
 Right now, the only type of backup is a zip file, using ``ZipBackup``. In the future, I may add others such as tar files and so on. If you really don't want a zip file, storelet may not be right for you at the moment.
 
+Logging
+-------
+
+Storelet uses the standard `Python logging`_ mechanism, and also offers a convenience method for setting up some reasonable logging defaults.
+
+::
+    
+    import storelet
+
+    storelet.setup_logging()
+
+    # Backup stuff here
+
+This will set up the logger to show all messages from INFO level upwards, and formats the log to look like the following:
+
+::
+
+    ...
+    2014-01-11 14:12:11,501 [INFO]: Added file /path/to/file1
+    2014-01-11 14:12:11,501 [INFO]: Added file /path/to/file2
+    2014-01-11 14:12:11,501 [INFO]: Added file /path/to/file3
+    2014-01-11 14:12:11,502 [INFO]: Added file /path/to/file4
+    2014-01-11 14:12:11,503 [INFO]: Added file /path/to/subdirectory/file1
+    2014-01-11 14:12:11,503 [INFO]: Added file /path/to/subdirectory/file2
+    ...
+
+Of course, using this method is entirely optional. You may wish to set up logging a different way using any of the standard `Python logging`_ tools.
+
+    import storelet
+    import logging
+
+    logging.basicConfig(level=logging.INFO, format="At %(asctime)s, this happened: %(message)s")
+
+    # Backup stuff here
+
 Warning
 -------
 
 This is a very early release and the API is likely to change. Do not consider it stable until it hits 1.0. Don't complain if it eats your face.
+
+
+.. _Python Logging: http://docs.python.org/2/howto/logging.html
 
