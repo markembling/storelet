@@ -59,12 +59,14 @@ class ZipBackup(object):
     
     def save_to_s3(self, bucket, access_key, secret_key):
         """Save the backup to Amazon S3"""
+        logger.info("Saving to S3 in '%s' bucket" % bucket)
         conn = S3Connection(access_key, secret_key)
         bucket = conn.get_bucket(bucket)
         key = Key(bucket)
         key.key = '%s_%s.zip' % \
             (self.name, datetime.now().strftime("%Y%m%d%H%M%S"))
         key.set_contents_from_filename(self._path)
+        logger.info("Saving to S3 done: %s" % key.key)
 
     def include_new_dir(self, name):
         """Add a new empty directory to the backup"""

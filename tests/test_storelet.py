@@ -2,6 +2,8 @@ import os
 import unittest
 import zipfile
 import logging
+import boto
+from moto import mock_s3
 import storelet
 
 class StoreletTestCase(unittest.TestCase):
@@ -221,6 +223,19 @@ class TestZipBackup(StoreletTestCase):
         self.assertLogged("debug", "Walking directory")
         self.assertLogged("info", "Added file")
         self.assertLogged("debug", "Finished directory")
+
+    @mock_s3
+    def test_logging_when_saving_to_s3(self):
+        """Log messages when saving the backup to Amazon S3"""
+        # Set up mock S3 - make sure the bucket exists
+        conn = boto.connect_s3()
+        conn.create_bucket("mybucket")
+
+        with storelet.ZipBackup("test") as b:
+            b.save_to_s3("mybucket", "myaccesskey", "mysecret")
+
+        self.assertLogged("info", "Saving to S3")
+        self.assertLogged("info", "Saving to S3 done")
 
 class TestBackupIncludedDirectory(StoreletTestCase):
 
