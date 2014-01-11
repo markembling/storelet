@@ -12,7 +12,7 @@ __author__ = "Mark Embling"
 class ZipBackup(object):
 
     """
-    A compressed ZIP file backup. 
+    A compressed ZIP file backup
 
     Note: large inclusion operations can sometimes take time as files 
     are compressed on the fly. This prevents all the files being copied 
