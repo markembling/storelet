@@ -13,6 +13,8 @@ It currently supports the following:
 
 Right now, that's all it does as it's all I've needed. I expect to add more as time goes on, but if something is missing or feels wrong, feel free to submit a pull request.
 
+I wrote this because Python is great at - amongst many things - writing small scripts like backup scripts and I think it's just as good as any custom tools or utilities you might find. Storelet just wraps up all the common boilerplate into a tiny little framework to write neat and easy to understand scripts.
+
 Requirements
 ------------
 
