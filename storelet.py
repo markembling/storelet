@@ -1,4 +1,5 @@
 import os
+import logging
 from tempfile import mkstemp, mkdtemp
 from shutil import rmtree
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -8,6 +9,9 @@ from boto.s3.key import Key
 
 __version__ = "0.1.3"
 __author__ = "Mark Embling"
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 class ZipBackup(object):
 
@@ -23,6 +27,7 @@ class ZipBackup(object):
     def __init__(self, name):
         self.name = name
         _, self._path = mkstemp()
+        logger.debug("Created temporary file: %s" % self._path)
     
     def __enter__(self):
         return self
@@ -32,20 +37,25 @@ class ZipBackup(object):
         
     def close(self):
         os.remove(self._path)
+        logger.debug("Removed temporary file: %s" % self._path)
     
     def include_directory(self, path, preserve_paths=False, name=None):
         """Add the contents of a directory to the backup"""
         path = os.path.abspath(path)
+        logger.debug("Adding directory: %s" % path)
         with ZipFile(self._path, 'a', ZIP_DEFLATED) as zipfile:
             for base,dirs,files in os.walk(path):
+                logger.debug("Walking directory: %s" % path)
                 for file in files:
                     filename = os.path.join(base, file)
                     try:
                         zipfile.write(filename,
                             self._get_filename_for_archive(
                                 path, filename, preserve_paths, name))
+                        logger.info("Added file: %s" % file)
                     except IOError:
-                        pass
+                        logger.warn("Could not add file: %s" % file)
+            logger.debug("Finished directory: %s" % path)
     
     def save_to_s3(self, bucket, access_key, secret_key):
         """Save the backup to Amazon S3"""
@@ -76,6 +86,7 @@ class BackupIncludedDirectory(object):
         self.name = name
         self.path = mkdtemp()
         self._owner = owner
+        logger.debug("Created temporary directory: %s" % self.path)
     
     def __str__(self):
         return self.path
@@ -87,3 +98,4 @@ class BackupIncludedDirectory(object):
         self._owner.include_directory(self.path, preserve_paths=False, 
                                                  name=self.name)
         rmtree(self.path)
+        logger.debug("Removed temporary directory: %s" % self.path)
