@@ -206,11 +206,21 @@ class TestZipBackup(StoreletTestCase):
             # as far as the zip file and any archive tool is concerned.
             self.assertIn("new_dir/test.txt", names)
 
-    def test_log_message_when_creating_and_removing_file(self):
+    def test_logging_when_creating_and_removing_file(self):
+        """Log messages when creating and removing temporary file"""
         with storelet.ZipBackup("test") as b:
             pass
-        self.assertLogged('debug', 'Created temporary file')
-        self.assertLogged('debug', 'Removed temporary file')
+        self.assertLogged("debug", "Created temporary file")
+        self.assertLogged("debug", "Removed temporary file")
+
+    def test_logging_when_adding_directory(self):
+        """Log messages when adding a directory"""
+        with storelet.ZipBackup("test") as b:
+            b.include_directory(self.get_data("simple"))
+        self.assertLogged("debug", "Adding directory")
+        self.assertLogged("debug", "Walking directory")
+        self.assertLogged("info", "Added file")
+        self.assertLogged("debug", "Finished directory")
 
 class TestBackupIncludedDirectory(StoreletTestCase):
 
@@ -249,6 +259,13 @@ class TestBackupIncludedDirectory(StoreletTestCase):
         self.assertTrue(self.fake_backup.include_directory_called)
         self.assertEqual(self.fake_backup.include_directory_name, 
                          "test")
+
+    def test_logging(self):
+        """Log messages when creating/removing temporary directory"""
+        with storelet.BackupIncludedDirectory("test", self.fake_backup) as d:
+            pass
+        self.assertLogged("debug", "Created temporary directory")
+        self.assertLogged("debug", "Removed temporary directory")
 
 
 if __name__ == '__main__':
