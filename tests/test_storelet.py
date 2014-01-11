@@ -1,4 +1,5 @@
 import os
+from stat import ST_MODE
 import unittest
 import zipfile
 import logging
@@ -248,6 +249,22 @@ class TestZipBackup(StoreletTestCase):
         self.assertLogged("debug", "Walking directory")
         self.assertLogged("info", "Added file")
         self.assertLogged("debug", "Finished directory")
+
+    def test_logging_when_unable_to_add_directory(self):
+        """Log and do not throw exception when unable to add file"""
+        simple_path = self.get_data("simple")
+        file_path = os.path.join(simple_path, "file.txt")
+        original = os.stat(file_path)[ST_MODE]
+
+        # Change permissions to none
+        os.chmod(file_path, 0)
+
+        with storelet.ZipBackup("test") as b:
+            b.include_directory(simple_path)
+        self.assertLogged("warning", "Could not add file")
+
+        # Put the permissions back
+        os.chmod(file_path, original)
 
     @mock_s3
     def test_logging_when_saving_to_s3(self):
