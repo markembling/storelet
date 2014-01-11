@@ -79,7 +79,7 @@ Sometimes it's desirable to run additional commands (such as database backups fo
 
 In this basic example, a new directory will exist inside the final zip file called ``generated_directory``, and inside will be an empty file called ``touched.file`` that was created by calling the system's ``touch`` command.
 
-When ``with backup.include_new_dir("whatever") as d:`` is called, a new temporary directory is created. The string representation of the resulting variable (``d``), or ``d.name`` contains the location on disk (``e.g. /tmp/whatever``). Commands (or any code you like) can be run which place files into this directory. At the end of the ``with`` block, the contents of that directory are then included in the generated zip file, in a directory with your given name.
+When ``with backup.include_new_dir("whatever") as d:`` is called, a new temporary directory is created. The string representation of the resulting variable (``d``), or ``d.path`` contains the location on disk (``e.g. /tmp/whatever``). Commands (or any code you like) can be run which place files into this directory. At the end of the ``with`` block, the contents of that directory are then included in the generated zip file, in a directory with your given name.
     
 Saving the Backup
 -----------------
