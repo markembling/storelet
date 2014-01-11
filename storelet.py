@@ -13,6 +13,11 @@ __author__ = "Mark Embling"
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
+def setup_logging():
+    """Convenience function for setting up some sane logging defaults"""
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s [%(levelname)s]: %(message)s")
+
 class ZipBackup(object):
 
     """
@@ -27,7 +32,7 @@ class ZipBackup(object):
     def __init__(self, name):
         self.name = name
         _, self._path = mkstemp()
-        logger.debug("Created temporary file: %s" % self._path)
+        logger.debug("Created temporary file %s" % self._path)
     
     def __enter__(self):
         return self
@@ -37,25 +42,25 @@ class ZipBackup(object):
         
     def close(self):
         os.remove(self._path)
-        logger.debug("Removed temporary file: %s" % self._path)
+        logger.debug("Removed temporary file %s" % self._path)
     
     def include_directory(self, path, preserve_paths=False, name=None):
         """Add the contents of a directory to the backup"""
         path = os.path.abspath(path)
-        logger.debug("Adding directory: %s" % path)
+        logger.debug("Adding directory %s" % path)
         with ZipFile(self._path, 'a', ZIP_DEFLATED) as zipfile:
             for base,dirs,files in os.walk(path):
-                logger.debug("Walking directory: %s" % path)
+                logger.debug("Walking directory %s" % path)
                 for file in files:
                     filename = os.path.join(base, file)
                     try:
                         zipfile.write(filename,
                             self._get_filename_for_archive(
                                 path, filename, preserve_paths, name))
-                        logger.info("Added file: %s" % file)
+                        logger.info("Added file %s" % filename)
                     except IOError:
-                        logger.warn("Could not add file: %s" % file)
-            logger.debug("Finished directory: %s" % path)
+                        logger.warn("Could not add file %s" % file)
+            logger.debug("Finished directory %s" % path)
     
     def save_to_s3(self, bucket, access_key, secret_key):
         """Save the backup to Amazon S3"""
@@ -66,7 +71,7 @@ class ZipBackup(object):
         key.key = '%s_%s.zip' % \
             (self.name, datetime.now().strftime("%Y%m%d%H%M%S"))
         key.set_contents_from_filename(self._path)
-        logger.info("Saving to S3 done: %s" % key.key)
+        logger.info("Saving to S3 done %s" % key.key)
 
     def include_new_dir(self, name):
         """Add a new empty directory to the backup"""
@@ -88,7 +93,7 @@ class BackupIncludedDirectory(object):
         self.name = name
         self.path = mkdtemp()
         self._owner = owner
-        logger.debug("Created temporary directory: %s" % self.path)
+        logger.debug("Created temporary directory %s" % self.path)
     
     def __str__(self):
         return self.path
@@ -100,4 +105,4 @@ class BackupIncludedDirectory(object):
         self._owner.include_directory(self.path, preserve_paths=False, 
                                                  name=self.name)
         rmtree(self.path)
-        logger.debug("Removed temporary directory: %s" % self.path)
+        logger.debug("Removed temporary directory %s" % self.path)
