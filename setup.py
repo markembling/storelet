@@ -1,6 +1,6 @@
 import os
 from setuptools import setup
-from storelet import __version__
+from storelet import __version__, __author__, __email__
 
 def read_file(filename):
     with open(os.path.join(os.path.dirname(__file__), filename)) as file:
@@ -10,8 +10,8 @@ setup(name="storelet",
       version=__version__,
       description="Simple and easy framework for writing backup scripts",
       long_description=read_file("README.rst"),
-      author="Mark Embling",
-      author_email="contact@markembling.info",
+      author=__author__,
+      author_email=__email__,
       url="http://github.com/markembling/storelet",
       license="BSD",
       py_modules=["storelet"],

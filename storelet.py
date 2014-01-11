@@ -9,6 +9,7 @@ from boto.s3.key import Key
 
 __version__ = "0.1.4"
 __author__ = "Mark Embling"
+__email__ = "mark@markembling.info"
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
