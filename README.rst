@@ -100,5 +100,5 @@ Right now, the only type of backup is a zip file, using ``ZipBackup``. In the fu
 Warning
 -------
 
-This is a very early release and the API is likely to change. Do not consider it stable until it hits 1.0. Also, there is nothing in the way of testing at the moment (!!). Don't complain if it eats your face.
+This is a very early release and the API is likely to change. Do not consider it stable until it hits 1.0. Don't complain if it eats your face.
 
