@@ -110,7 +110,7 @@ Storelet uses the standard `Python logging`_ mechanism, and also offers a conven
 
     # Backup stuff here
 
-This will set up the logger to show all messages from INFO level upwards, and formats the log to look like the following:
+This will set up the logger to show all messages from INFO level upwards, and formats the output (send to the standard out) to look like the following:
 
 ::
 
