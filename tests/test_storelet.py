@@ -22,6 +22,17 @@ class StoreletTestCase(unittest.TestCase):
         super(StoreletTestCase, self).setUp()
         self._log_handler.reset()
 
+    def assertLogged(self, level, message):
+        """
+        Assert that a message was logged containing the given text and 
+        at the given level
+        """
+        for logmsg in self.log_messages[level]:
+            if message in logmsg:
+                return
+        raise AssertionError(
+            "No %s log message containing '%s'" % (level, message))
+
 class FakeBackup(object):
 
     """Fake backup object for checking methods were called"""
@@ -194,6 +205,12 @@ class TestZipBackup(StoreletTestCase):
             # If the name has the directory in it, the directory exists 
             # as far as the zip file and any archive tool is concerned.
             self.assertIn("new_dir/test.txt", names)
+
+    def test_log_message_when_creating_and_removing_file(self):
+        with storelet.ZipBackup("test") as b:
+            pass
+        self.assertLogged('debug', 'Created temporary file')
+        self.assertLogged('debug', 'Removed temporary file')
 
 class TestBackupIncludedDirectory(StoreletTestCase):
 
