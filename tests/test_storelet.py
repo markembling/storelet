@@ -14,21 +14,18 @@ class TestZipBackup(StoreletTestCase):
     """Tests for the ZipBackup class"""
 
     def test_context_manager_enter(self):
-        """Make sure the __enter__ method returns the instance"""
+        """__enter__ method should return instance"""
         b = storelet.ZipBackup("test")
         self.assertIs(b.__enter__(), b)
 
     def test_creates_and_removes_temporary_file(self):
-        """Check the temporary file is created and removed"""
+        """Temporary file is created and removed"""
         with storelet.ZipBackup("test") as b:
             self.assertTrue(os.path.exists(b._path))
         self.assertFalse(os.path.exists(b._path))
 
     def test_close_removes_temporary_file(self):
-        """
-        Close method should remove temporary file 
-        (in case the context manager isn't used)
-        """
+        """Close method removes temporary file"""
         b = storelet.ZipBackup("test")
         b.close()
         self.assertFalse(os.path.exists(b._path))
@@ -38,9 +35,7 @@ class TestZipBackup(StoreletTestCase):
             self.assertEqual(b.name, "test")
 
     def test_include_directory_simple(self):
-        """
-        Ensure a simple directory's contents are added to the backup
-        """
+        """A simple directory's contents are added"""
         with storelet.ZipBackup("test") as b:
             b.include_directory(self.get_data("simple"))
 
@@ -49,58 +44,73 @@ class TestZipBackup(StoreletTestCase):
             self.assertIn("file.txt", names)
 
     def test_include_directory_recurse(self):
-        """
-        Ensure a full directory including subdirectory contents is added 
-        to the backup
-        """
+        """Adds directory including subdirectory contents"""
         with storelet.ZipBackup("test") as b:
             b.include_directory(self.get_data("deeper"))
 
             zip_file = zipfile.ZipFile(b._path, "r")
             names = zip_file.namelist()
-            self.assertIn("file.txt", names)
-            self.assertIn("dir1/file.txt", names)
+            self.assertIn("file0.txt", names)
+            self.assertIn("dir1/file1.txt", names)
 
     def test_include_directory_preserving_paths(self):
-        """
-        Ensure full paths are preserved if the preserve_paths option is
-        True
-        """
-        self.assertFalse(True, "TODO")
+        """Full paths are preserved if requested"""
+        data_path = self.get_data("simple")
+        with storelet.ZipBackup("test") as b:
+            b.include_directory(data_path, preserve_paths=True)
+
+            zip_file = zipfile.ZipFile(b._path, "r")
+            names = zip_file.namelist()
+            # If the full path was '/dir1/dir2/file.txt', we want to 
+            # make sure the zip file has an entry named 
+            # 'dir1/dir2/file.txt' without the leading '/'.
+            data_path_rootless = os.path.relpath(data_path, "/")
+            self.assertIn("%s/file.txt" % data_path_rootless, names)
 
     def test_include_directory_with_name(self):
-        """
-        Ensure directory contents are added to a named directory if a 
-        name is given
-        """
-        self.assertFalse(True, "TODO")
+        """Directory contents are added to a named directory"""
+        with storelet.ZipBackup("test") as b:
+            b.include_directory(self.get_data("simple"), name="foo")
+
+            zip_file = zipfile.ZipFile(b._path, "r")
+            names = zip_file.namelist()
+            self.assertIn("foo/file.txt", names)
 
     def test_include_directory_with_name_and_paths(self):
-        """
-        Ensure a named directory is created with the full path preserved
-        underneath it within the backup if both options are given
-        """
-        self.assertFalse(True, "TODO")
+        """A named directory is created with the full path preserved"""
+        data_path = self.get_data("simple")
+        with storelet.ZipBackup("test") as b:
+            b.include_directory(data_path, preserve_paths=True, 
+                                           name="foo")
+
+            zip_file = zipfile.ZipFile(b._path, "r")
+            names = zip_file.namelist()
+            data_path_rootless = os.path.relpath(data_path, "/")
+            self.assertIn("foo/%s/file.txt" % data_path_rootless, names)
 
     def test_include_directory_merges_same_names(self):
         """
-        Ensure that if two directories are included using the same name,
-        both sets of files are included within the appropriate directory
+        Two directories' contents are merged into the same named 
+        directory
         """
-        self.assertFalse(True, "TODO")
+        with storelet.ZipBackup("test") as b:
+            b.include_directory(self.get_data("simple"), name="foo")
+            b.include_directory(self.get_data("deeper"), name="foo")
+
+            zip_file = zipfile.ZipFile(b._path, "r")
+            names = zip_file.namelist()
+            self.assertIn("foo/file.txt", names)
+            self.assertIn("foo/file0.txt", names)
+            self.assertIn("foo/dir1/file1.txt", names)
 
     def test_resulting_file_is_zipfile(self):
-        """
-        Make sure the file is in fact a ZIP after adding some contents
-        """
+        """Make sure the file is a ZIP after adding some contents"""
         with storelet.ZipBackup("test") as b:
             b.include_directory(self.get_data("simple"))
             zipfile.is_zipfile(b._path)
 
     def test_include_new_dir(self):
-        """
-        Check that we can create a new custom directory in the backup
-        """
+        """A new custom directory can be added"""
         with storelet.ZipBackup("test") as b:
             with b.include_new_dir("new_dir") as d:
                 # We need to write at least one file to the directory
