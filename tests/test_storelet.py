@@ -1,13 +1,26 @@
 import os
 import unittest
 import zipfile
-from storelet import ZipBackup, BackupIncludedDirectory
+import logging
+import storelet
 
 class StoreletTestCase(unittest.TestCase):
     def get_data(self, name):
         """Gets the path to the named test data"""
         return os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "data", name)
+
+    @classmethod
+    def setUpClass(cls):
+        super(StoreletTestCase, cls).setUpClass()
+        logger = logging.getLogger(storelet.__name__)
+        cls._log_handler = MockLoggingHandler(level="DEBUG")
+        logger.addHandler(cls._log_handler)
+        cls.log_messages = cls._log_handler.messages
+
+    def setUp(self):
+        super(StoreletTestCase, self).setUp()
+        self._log_handler.reset()
 
 class FakeBackup(object):
 
@@ -21,6 +34,46 @@ class FakeBackup(object):
         self.include_directory_called = True
         self.include_directory_name = kwargs["name"]
 
+class MockLoggingHandler(logging.Handler):
+
+    """
+    Mock logging handler to check for expected logs
+
+    Messages are available from an instance's ``messages`` dict, in 
+    order, indexed by a lowercase log level string (e.g., 'debug', 
+    'info', etc.)
+
+    From: http://stackoverflow.com/a/20553331/6844
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.messages = {'debug': [], 
+                         'info': [], 
+                         'warning': [], 
+                         'error': [],
+                         'critical': []}
+        super(MockLoggingHandler, self).__init__(*args, **kwargs)
+
+    def emit(self, record):
+        """
+        Store a message from ``record`` in the instance's ``messages`` 
+        dict.
+        """
+        self.acquire()
+        try:
+            self.messages[record.levelname.lower()].append(record.getMessage())
+        finally:
+            self.release()
+
+    def reset(self):
+        self.acquire()
+        try:
+            for message_list in self.messages.values():
+                # Empty the list
+                del message_list[:]
+        finally:
+            self.release()
+
 
 class TestZipBackup(StoreletTestCase):
 
@@ -28,30 +81,30 @@ class TestZipBackup(StoreletTestCase):
 
     def test_context_manager_enter(self):
         """__enter__ method should return instance"""
-        b = ZipBackup("test")
+        b = storelet.ZipBackup("test")
         self.assertIs(b.__enter__(), b)
         b.close()
 
     def test_creates_and_removes_temporary_file(self):
         """Temporary file is created and removed"""
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             self.assertTrue(os.path.exists(b._path))
         self.assertFalse(os.path.exists(b._path))
 
     def test_close_removes_temporary_file(self):
         """Close method removes temporary file"""
-        b = ZipBackup("test")
+        b = storelet.ZipBackup("test")
         b.close()
         self.assertFalse(os.path.exists(b._path))
 
     def test_sets_backup_name(self):
         """Name is correctly set"""
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             self.assertEqual(b.name, "test")
 
     def test_include_directory_simple(self):
         """A simple directory's contents are added"""
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             b.include_directory(self.get_data("simple"))
 
             zip_file = zipfile.ZipFile(b._path, "r")
@@ -60,7 +113,7 @@ class TestZipBackup(StoreletTestCase):
 
     def test_include_directory_recurse(self):
         """Adds directory including subdirectory contents"""
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             b.include_directory(self.get_data("deeper"))
 
             zip_file = zipfile.ZipFile(b._path, "r")
@@ -71,7 +124,7 @@ class TestZipBackup(StoreletTestCase):
     def test_include_directory_preserving_paths(self):
         """Full paths are preserved if requested"""
         data_path = self.get_data("simple")
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             b.include_directory(data_path, preserve_paths=True)
 
             zip_file = zipfile.ZipFile(b._path, "r")
@@ -84,7 +137,7 @@ class TestZipBackup(StoreletTestCase):
 
     def test_include_directory_with_name(self):
         """Directory contents are added to a named directory"""
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             b.include_directory(self.get_data("simple"), name="foo")
 
             zip_file = zipfile.ZipFile(b._path, "r")
@@ -94,7 +147,7 @@ class TestZipBackup(StoreletTestCase):
     def test_include_directory_with_name_and_paths(self):
         """A named directory is created with the full path preserved"""
         data_path = self.get_data("simple")
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             b.include_directory(data_path, preserve_paths=True, 
                                            name="foo")
 
@@ -108,7 +161,7 @@ class TestZipBackup(StoreletTestCase):
         Two directories' contents are merged into the same named 
         directory
         """
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             b.include_directory(self.get_data("simple"), name="foo")
             b.include_directory(self.get_data("deeper"), name="foo")
 
@@ -120,13 +173,13 @@ class TestZipBackup(StoreletTestCase):
 
     def test_resulting_file_is_zipfile(self):
         """Make sure the file is a ZIP after adding some contents"""
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             b.include_directory(self.get_data("simple"))
             zipfile.is_zipfile(b._path)
 
     def test_include_new_dir(self):
         """A new custom directory can be added"""
-        with ZipBackup("test") as b:
+        with storelet.ZipBackup("test") as b:
             with b.include_new_dir("new_dir") as d:
                 # We need to write at least one file to the directory
                 # as empty directories don't exist in zip files. The 
@@ -147,33 +200,34 @@ class TestBackupIncludedDirectory(StoreletTestCase):
     """Tests for the BackupIncludedDirectory class"""
 
     def setUp(self):
+        super(TestBackupIncludedDirectory, self).setUp()
         self.fake_backup = FakeBackup()
 
     def test_sets_name(self):
         """Name is correctly set"""
-        with BackupIncludedDirectory("test", self.fake_backup) as d:
+        with storelet.BackupIncludedDirectory("test", self.fake_backup) as d:
             self.assertEqual(d.name, "test")
 
     def test_creates_and_removes_temporary_directory(self):
         """Temporary directory is created and removed"""
-        with BackupIncludedDirectory("test", self.fake_backup) as d:
+        with storelet.BackupIncludedDirectory("test", self.fake_backup) as d:
             self.assertTrue(os.path.isdir(d.path))
         self.assertFalse(os.path.exists(d.path))
 
     def test_string_representation(self):
         """String representation is current temporary path on disk"""
-        with BackupIncludedDirectory("test", self.fake_backup) as d:
+        with storelet.BackupIncludedDirectory("test", self.fake_backup) as d:
             self.assertEqual(str(d), d.path)
 
     def test_context_manager_enter(self):
         """__enter__ method should return instance"""
-        d = BackupIncludedDirectory("test", self.fake_backup)
+        d = storelet.BackupIncludedDirectory("test", self.fake_backup)
         self.assertIs(d.__enter__(), d)
         d.__exit__(None, None, None)
 
     def test_included_in_owner_backup(self):
         """Directory is included in the backup with the given name"""
-        with BackupIncludedDirectory("test", self.fake_backup) as d:
+        with storelet.BackupIncludedDirectory("test", self.fake_backup) as d:
             pass
         self.assertTrue(self.fake_backup.include_directory_called)
         self.assertEqual(self.fake_backup.include_directory_name, 
