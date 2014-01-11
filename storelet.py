@@ -7,7 +7,7 @@ from datetime import datetime
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__ = "Mark Embling"
 
 logger = logging.getLogger(__name__)
