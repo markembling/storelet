@@ -18,7 +18,7 @@ I wrote this because Python is great at - amongst many things - writing small sc
 Requirements
 ------------
 
-Right now, storelet has only been tested on Python 2.7 and will not work on older versions. Python 3.x support is to be added. It also assumes the presence of the `zlib` library.
+Right now, storelet has only been tested on Python 2.7 and will not work on older versions. Python 3.x support is to be added (currently waiting on either support in `boto` to be ready or for the new, currently experimental `boto3` to be production-ready. It also assumes the presence of the `zlib` library.
 
 Install
 -------
