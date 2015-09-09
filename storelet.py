@@ -7,7 +7,7 @@ from datetime import datetime
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 __author__ = "Mark Embling"
 __email__ = "mark@markembling.info"
 
@@ -52,7 +52,7 @@ class ZipBackup(object):
         """Add the contents of a directory to the backup"""
         path = os.path.abspath(path)
         logger.debug("Adding directory %s" % path)
-        with ZipFile(self._path, 'a', ZIP_DEFLATED) as zipfile:
+        with ZipFile(self._path, 'a', ZIP_DEFLATED, allowZip64=True) as zipfile:
             for base,dirs,files in os.walk(path):
                 logger.debug("Walking directory %s" % path)
                 for file in files:
