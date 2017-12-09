@@ -66,10 +66,10 @@ class ZipBackup(object):
                         logger.warn("Could not add file %s" % file, exc_info=True)
             logger.debug("Finished directory %s" % path)
     
-    def save_to_s3(self, bucket, access_key, secret_key):
+    def save_to_s3(self, bucket, access_key, secret_key, **kwargs):
         """Save the backup to Amazon S3"""
         logger.info("Saving to S3 in '%s' bucket" % bucket)
-        conn = S3Connection(access_key, secret_key)
+        conn = S3Connection(access_key, secret_key, **kwargs)
         bucket = conn.get_bucket(bucket)
         key = Key(bucket)
         key.key = '%s_%s.zip' % \
