@@ -7,7 +7,7 @@ from datetime import datetime
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 __author__ = "Mark Embling"
 __email__ = "mark@markembling.info"
 
@@ -62,8 +62,8 @@ class ZipBackup(object):
                             self._get_filename_for_archive(
                                 path, filename, preserve_paths, name))
                         logger.info("Added file %s" % filename)
-                    except IOError:
-                        logger.warn("Could not add file %s" % file)
+                    except:
+                        logger.warn("Could not add file %s" % file, exc_info=True)
             logger.debug("Finished directory %s" % path)
     
     def save_to_s3(self, bucket, access_key, secret_key):
